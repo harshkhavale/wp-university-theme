@@ -15,10 +15,12 @@
   "license": "ISC",
   "dependencies": {
     "@glidejs/glide": "^3.6.2",
+    "@wordpress/scripts": "^28.4.0",
     "axios": "^1.7.2",
-    "normalize.css": "^8.0.1",
-    "@wordpress/scripts": "^28.4.0"
-
+    "jquery": "^3.7.1",
+    "normalize.css": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.30"
   }
-  
 }
