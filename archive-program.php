@@ -1,13 +1,7 @@
-<?php get_header() ?>
-<div class="page-banner">
-    <div class="page-banner__bg-image" style="background-image: url(<?php echo get_theme_file_uri('/images/ocean.jpg') ?>)"></div>
-    <div class="page-banner__content container t-center c-white">
-        <h1 class="page-banner__title">All Program's</h1>
-        <p>There is something for everyone. Have a look around.</p>
-        <div class="page-banner__intro">
-        </div>
-    </div>
-</div>
+<?php get_header();
+ pageBanner(array('title' => 'All Programs', 'subtitle' => 'There is something for everyone. Have a look around!'));
+?>
+
 <div class="container container--narrow page-section">
     <ul class="link-list min-list"><?php
     while (have_posts()) {
