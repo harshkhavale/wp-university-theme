@@ -1,4 +1,5 @@
 <?php
+require get_theme_file_path('/inc/search-route.php');
 function pageBanner($args = NULL) {
   
     if (!isset($args['title'])) {
@@ -51,6 +52,14 @@ function university_features()
     add_image_size('prof-potrait',480,650,true);
     add_image_size('pageBanner',1500,350,true);
 }
+function university_custom_rest(){
+    register_rest_field('post','authorName',array(
+        'get_callback' => function(){
+return get_the_author();
+        }
+    ));
+}
+add_action('rest_api_init','university_custom_rest');
 add_action('after_setup_theme', 'university_features');
 function university_adjust_queries($query)
 {

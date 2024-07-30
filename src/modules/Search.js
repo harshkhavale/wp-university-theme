@@ -8,7 +8,7 @@ class Search {
       this.openButton = document.querySelector(".js-search-trigger");
       this.closeButton = document.querySelector(".search-overlay__close");
       this.searchOverlay = document.querySelector(".search-overlay");
-      this.body = document.getElementsByTagName("body")[0]; // Get the first body element
+      this.body = document.getElementsByTagName("body")[0];
       this.searchField = document.querySelector(".search-term");
       this.isOverlayOpen = false;
       this.isSpinnerVisible = false;
@@ -26,7 +26,7 @@ class Search {
       this.closeOverlay();
     });
     document.addEventListener("keydown", (e) => this.keyPressDispatcher(e));
-    this.searchField.addEventListener("input", () => this.typingLogic()); // Changed to 'input' event
+    this.searchField.addEventListener("input", () => this.typingLogic());
   }
 
   typingLogic() {
@@ -48,46 +48,107 @@ class Search {
 
   async getResults() {
     try {
-      const [postsResponse, pagesResponse] = await Promise.all([
-        axios.get(`${universityData.root_url}/wp-json/wp/v2/posts?search=${this.searchField.value}`),
-        axios.get(`${universityData.root_url}/wp-json/wp/v2/pages?search=${this.searchField.value}`)
-      ]);
-  
-      console.log("Posts Response:", postsResponse);
-      console.log("Pages Response:", pagesResponse);
-  
-      const combinedResults = [
-        ...postsResponse.data,
-        ...pagesResponse.data
-      ];
-  
-      console.log("Combined Results:", combinedResults);
-  
-      let htmlContent = "";
-  
-      if (combinedResults.length === 0) {
-        htmlContent = "<h2 class='search-overlay__section-title'>Nothing to show!</h2>";
-      } else {
-        htmlContent = "<h2 class='search-overlay__section-title'>General Information</h2>";
-        htmlContent += combinedResults
-          .map(
-            (item) => `
-            <ul class='link-list min-list'>
-              <li><a href='${item.link}'>${item.title.rendered}</a></li>
-            </ul>`
-          )
-          .join("");
-      }
-  
-      this.resultsDiv.innerHTML = htmlContent;
+      // UPDATED:
+      const results = await axios.get(
+        `${universityData.root_url}/wp-json/university/v1/search?term=${this.searchField.value}`
+      );
+      console.log(results);
+      this.resultsDiv.innerHTML = `
+        <div class="row">
+          <div class="one-third">
+            <h2 class='search-overlay__section-title'>General Information</h2>
+            ${
+              results.data.generalInfo.length
+                ? `<ul class='link-list min-list'>` +
+                  results.data.generalInfo
+                    .map(
+                      (item) => `
+                        <li><a href='${item.permalink}'>${item.title}</a> ${
+                          item.postType == "post" ? "by " + item.authorName : ""
+                        }</li>
+                      `
+                    )
+                    .join("") +
+                  `</ul>`
+                : "<p>Nothing to show here..</p>"
+            }
+          </div>
+          <div class="one-third">
+            <h2 class='search-overlay__section-title'>Programs</h2>
+            ${
+              results.data.programs.length
+                ? `<ul class='link-list min-list'>` +
+                  results.data.programs
+                    .map(
+                      (item) => `
+                        <li><a href='${item.permalink}'>${item.title}</a></li>
+                      `
+                    )
+                    .join("") +
+                  `</ul>`
+                : `<p>Nothing to show here..<a href='${universityData.root_url}/programs'>View all</a></p>`
+            }
+            <h2 class='search-overlay__section-title'>Professors</h2>
+            ${
+              results.data.professors.length
+                ? `<ul class='professor-cards'>` +
+                  results.data.professors
+                    .map(
+                      (item) => `
+                          <li class="professor-card__list-item"><a class="professor-card" href="${item.permalink} ?>">
+                        <img class="professor-card__image" src="                        ${item.image}
+" alt="">
+                        <span class="professor-card">
+                    ${item.title}
+                        </span>
+                    </a></li>
+                      `
+                    )
+                    .join("") +
+                  `</ul>`
+                : "<p>Nothing to show here..</p>"
+            }
+          </div>
+          <div class="one-third">
+           
+            <h2 class='search-overlay__section-title'>Events</h2>
+            ${
+              results.data.events.length
+                ? `<ul class='link-list min-list'>` +
+                  results.data.events
+                    .map(
+                      (item) => `
+                      <div class="event-summary">
+    <a class="event-summary__date t-center" href="${item.permalink}">
+
+        
+        <span class="event-summary__month">${item.month}</span>
+        <span class="event-summary__day">${item.day}</span>
+    </a>
+    <div class="event-summary__content">
+        <h5 class="event-summary__title headline headline--tiny"><a href="${item.permalink}">${item.title}</a></h5>
+        ${item.description}
+            <a href="${item.permalink}" class="nu gray">Read more</a>
+        </p>
+    </div>
+</div>
+                      `
+                    )
+                    .join("") +
+                  `</ul>`
+                : `<p>Nothing to show here..<a href='${universityData.root_url}/events'>View all</a></p>`
+            }
+          </div>
+        </div>
+      `;
     } catch (error) {
       console.error("Error fetching results:", error);
-      this.resultsDiv.innerHTML = "<p>Sorry, something went wrong. Please try again.</p>";
+      this.resultsDiv.innerHTML =
+        "<p>Sorry, something went wrong. Please try again.</p>";
     } finally {
       this.isSpinnerVisible = false;
     }
   }
-  
 
   keyPressDispatcher(e) {
     if (e.keyCode === 27 && this.isOverlayOpen) {
@@ -112,6 +173,7 @@ class Search {
     }, 301);
     this.isOverlayOpen = true;
     this.searchField.focus();
+    return false;
   }
 
   closeOverlay() {
