@@ -117,6 +117,7 @@ class MyNotes {
     this.deleteBtn = document.querySelector(".delete-note");
     this.editBtn = document.querySelector(".edit-note");
     this.updateBtn = document.querySelector(".update-note");
+    this.submitBtn = document.querySelector(".submit-note"); // Correct class selector for submit button
     this.isEditing = false;
     this.events();
   }
@@ -124,6 +125,7 @@ class MyNotes {
     this.deleteBtn.addEventListener("click", this.deleteNote.bind(this));
     this.editBtn.addEventListener("click", this.toggleEditMode.bind(this));
     this.updateBtn.addEventListener("click", this.updateNote.bind(this));
+    this.submitBtn.addEventListener('click', this.submitNote.bind(this));
   }
   toggleEditMode(e) {
     const thisNote = e.target.closest("li");
@@ -188,6 +190,30 @@ class MyNotes {
       }
     } catch (error) {
       console.error('Error updating the note:', error);
+    }
+  }
+  async submitNote() {
+    const noteTitleField = document.querySelector(".new-note-title");
+    const noteBodyField = document.querySelector(".new-note-body");
+    if (!noteTitleField || !noteBodyField) return;
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0__["default"].post(`${universityData.root_url}/wp-json/wp/v2/note`, {
+        title: noteTitleField.value,
+        content: noteBodyField.value,
+        status: 'private'
+      }, {
+        headers: {
+          'X-WP-Nonce': universityData.nonce
+        }
+      });
+      if (response.status === 201) {
+        // Optionally, you can refresh the page or add the new note to the DOM
+        alert('Note created successfully!');
+        noteTitleField.value = '';
+        noteBodyField.value = '';
+      }
+    } catch (error) {
+      console.error('Error creating the note:', error);
     }
   }
 }

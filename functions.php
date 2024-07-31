@@ -38,7 +38,7 @@ function university_files()
     wp_enqueue_script('main-university-js', get_theme_file_uri('/build/index.js'), array('jquery'), 1.0, true);
     wp_localize_script('main-university-js', 'universityData', array(
         'root_url' => get_site_url(),
-        'nonce' =>wp_create_nonce('wp_rest')
+        'nonce' => wp_create_nonce('wp_rest')
     ));
 }
 add_action('wp_enqueue_scripts', 'university_files');
@@ -126,4 +126,17 @@ function ourLoginTitle()
 {
     // return get_bloginfo('name');
     return 'University Login';
+}
+add_filter('wp_insert_post_data', 'makeNotePrivate');
+function makeNotePrivate($data)
+{
+    if($data['post_type'] == 'note'){
+        $data['post_title'] = sanitize_text_field($data['post_title']);
+
+        $data['post_content'] = sanitize_textarea_field($data['post_content']);
+    }
+    if ($data['post_type'] == 'note' and $data['post_status'] != 'trash') {
+        $data['post_status'] = "private";
+    }
+    return $data;
 }
