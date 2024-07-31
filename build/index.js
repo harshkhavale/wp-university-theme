@@ -13,9 +13,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/MobileMenu */ "./src/modules/MobileMenu.js");
 /* harmony import */ var _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/HeroSlider */ "./src/modules/HeroSlider.js");
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
+/* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
 
 
 // Our modules / classes
+
 
 
 
@@ -24,6 +26,7 @@ __webpack_require__.r(__webpack_exports__);
 const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default"]();
 const heroSlider = new _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__["default"]();
 const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_3__["default"]();
+const myNotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
 /***/ }),
 
@@ -94,6 +97,101 @@ class MobileMenu {
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MobileMenu);
+
+/***/ }),
+
+/***/ "./src/modules/MyNotes.js":
+/*!********************************!*\
+  !*** ./src/modules/MyNotes.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+
+class MyNotes {
+  constructor() {
+    this.deleteBtn = document.querySelector(".delete-note");
+    this.editBtn = document.querySelector(".edit-note");
+    this.updateBtn = document.querySelector(".update-note");
+    this.isEditing = false;
+    this.events();
+  }
+  events() {
+    this.deleteBtn.addEventListener("click", this.deleteNote.bind(this));
+    this.editBtn.addEventListener("click", this.toggleEditMode.bind(this));
+    this.updateBtn.addEventListener("click", this.updateNote.bind(this));
+  }
+  toggleEditMode(e) {
+    const thisNote = e.target.closest("li");
+    if (!thisNote) return;
+    const noteTitleField = thisNote.querySelector(".note-title-field");
+    const noteBodyField = thisNote.querySelector(".note-body-field");
+    const updateBtn = thisNote.querySelector('.update-note');
+    const editBtn = thisNote.querySelector('.edit-note');
+    if (noteTitleField && noteBodyField && updateBtn && editBtn) {
+      this.isEditing ? this.makeNoteReadOnly(noteTitleField, noteBodyField, updateBtn, editBtn) : this.makeNoteEditable(noteTitleField, noteBodyField, updateBtn, editBtn);
+      this.isEditing = !this.isEditing;
+    }
+  }
+  makeNoteEditable(noteTitleField, noteBodyField, updateBtn, editBtn) {
+    noteTitleField.removeAttribute("readonly");
+    noteTitleField.classList.add("note-active-field");
+    noteBodyField.removeAttribute("readonly");
+    noteBodyField.classList.add("note-active-field");
+    updateBtn.classList.add("update-note--visible");
+    editBtn.innerHTML = `<i class="fa fa-times" aria-hidden="true"></i> Cancel`;
+  }
+  makeNoteReadOnly(noteTitleField, noteBodyField, updateBtn, editBtn) {
+    noteTitleField.setAttribute("readonly", true);
+    noteTitleField.classList.remove("note-active-field");
+    noteBodyField.setAttribute("readonly", true);
+    noteBodyField.classList.remove("note-active-field");
+    updateBtn.classList.remove("update-note--visible");
+    editBtn.innerHTML = `<i class="fa fa-pencil" aria-hidden="true"></i> Edit`;
+  }
+  async deleteNote(e) {
+    const thisNote = e.target.closest("li");
+    if (!thisNote) return;
+    const noteId = thisNote.dataset.id;
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0__["default"].delete(`${universityData.root_url}/wp-json/wp/v2/note/${noteId}`, {
+        headers: {
+          'X-WP-Nonce': universityData.nonce
+        }
+      });
+      if (response.status === 200) thisNote.remove();
+    } catch (error) {
+      console.error('Error deleting the note:', error);
+    }
+  }
+  async updateNote(e) {
+    const thisNote = e.target.closest("li");
+    if (!thisNote) return;
+    const noteId = thisNote.dataset.id;
+    const noteTitleField = thisNote.querySelector(".note-title-field");
+    const noteBodyField = thisNote.querySelector(".note-body-field");
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0__["default"].post(`${universityData.root_url}/wp-json/wp/v2/note/${noteId}`, {
+        title: noteTitleField.value,
+        content: noteBodyField.value
+      }, {
+        headers: {
+          'X-WP-Nonce': universityData.nonce
+        }
+      });
+      if (response.status === 200) {
+        this.makeNoteReadOnly(noteTitleField, noteBodyField, thisNote.querySelector('.update-note'), thisNote.querySelector('.edit-note'));
+      }
+    } catch (error) {
+      console.error('Error updating the note:', error);
+    }
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MyNotes);
 
 /***/ }),
 
