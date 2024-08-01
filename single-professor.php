@@ -11,15 +11,35 @@ while (have_posts()) {
     <div class="container container--narrow page-section">
 
         <div class="generic-content">
-            <div class="row group">
+            <div class=" row group">
                 <div class="one-third">
-                    <?php the_post_thumbnail('prof-landscape') ?>
+                    <?php the_post_thumbnail('prof-potrait') ?>
 
                 </div>
                 <div class="two-third">
+                    <?php
+                    $likeCount = new WP_Query(
+                        array(
+                            'post_type' => 'like',
+                            'meta_query' => array(
+                                array(
+                                    'key' => 'liked_professor_id',
+                                    'value' => get_the_ID(),
+                                    'compare' => '='
+                                )
+                            ),
+                        )
+                    )
+                    ?>
+                    <span class="like-box">
+                        <i class="fa fa-heart-o" aria-hidden="true"></i>
+                        <i class="fa fa-heart-o" aria-hidden="true"></i>
+                        <span class="like-count"><?php echo $likeCount->found_posts ?></span>
+                    </span>
                     <?php the_content() ?>
 
                 </div>
+
             </div>
         </div>
     </div>

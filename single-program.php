@@ -39,15 +39,14 @@ while (have_posts()) {
             while ($relatedProfessors->have_posts()) {
                 $relatedProfessors->the_post(); ?>
                 <li class="professor-card__list-item"><a class="professor-card" href="<?php the_permalink(); ?>">
-                        <img class="professor-card__image" src="<?php the_post_thumbnail_url('prof-potrait') ?>" alt="">
+                        <img class="professor-card__image" src="<?php the_post_thumbnail_url('prof-landscape') ?>" alt="">
                         <span class="professor-card">
                             <?php the_title() ?>
                         </span>
                     </a></li>
-            <?php }
+        <?php }
             echo '</ul>';
             echo " </div>";
-
         }
         wp_reset_postdata();
         $today = date('Ymd');
@@ -76,8 +75,8 @@ while (have_posts()) {
             echo '<h2 class="headline headline--medium">Upcoming ' . get_the_title() . ' Events</h2>';
             while ($homePagePosts->have_posts()) {
                 $homePagePosts->the_post();
-                get_template_part('template-parts/content','event');
-             }
+                get_template_part('template-parts/content', 'event');
+            }
         } ?>
     </div>
 <?php
